@@ -29,14 +29,15 @@
 var superficie3D;
 var mallaDeTriangulos;
 
-var filas=7;
-var columnas=8;
+var filas=100;
+var columnas=100;
 
 
 function crearGeometria(){
-        
 
-    superficie3D=new Plano(3,3);
+    // superficie3D=new Plano(3,3);
+    superficie3D=new Esfera(1);
+    // superficie3D=new Cilindro(1, 2);
     mallaDeTriangulos=generarSuperficie(superficie3D,filas,columnas);
     
 }
@@ -64,14 +65,71 @@ function Plano(ancho,largo){
     }
 }
 
+function Esfera(radio){
+
+    this.getPosicion=function(u,v){
+        var theta = 2 * Math.PI * u;
+        var phi = Math.PI * v;
+
+        var x = radio * Math.cos(theta) * Math.sin(phi);
+        var y = radio * Math.cos(phi);
+        var z = radio * Math.sin(theta) * Math.sin(phi);
+        return [x,y,z];
+    }
+
+    this.getNormal=function(u,v){
+        var theta = 2 * Math.PI * u;
+        var phi = Math.PI * v;
+
+        var x = Math.cos(theta) * Math.sin(phi);
+        var y = Math.cos(phi);
+        var z = Math.sin(theta) * Math.sin(phi);
+        return [x,y,z];
+    }
+
+    this.getCoordenadasTextura=function(u,v){
+        return [u,v];
+    }
+
+}
+
+function Cilindro(radio, altura){
+
+    this.getPosicion=function(u,v){
+        var theta = 2 * Math.PI * u;
+
+        var x = radio * Math.cos(theta);
+        var y = (v - 0.5) * altura;
+        var z = radio * Math.sin(theta);
+        return [x,y,z];
+    }
+
+    this.getNormal=function(u,v){
+        var theta = 2 * Math.PI * u;
+
+        var x = Math.cos(theta);
+        var y = 0;
+        var z = Math.sin(theta);
+
+        if (Math.abs((v - 0.5)/ altura) == 1) return [0, (v - 0.5)/ altura, 0];
+
+        return [x,y,z];
+    }
+
+    this.getCoordenadasTextura=function(u,v){
+        return [u,v];
+    }
+
+}
+
 function generarSuperficie(superficie,filas,columnas){
     
     positionBuffer = [];
     normalBuffer = [];
     uvBuffer = [];
 
-    for (var i=0; i <= filas - 1; i++) {
-        for (var j=0; j <= columnas - 1; j++) {
+    for (var i=0; i <= filas; i++) {
+        for (var j=0; j <= columnas; j++) {
 
             var u=j/columnas;
             var v=i/filas;
@@ -98,24 +156,17 @@ function generarSuperficie(superficie,filas,columnas){
 
     // Buffer de indices de los triángulos
     indexBuffer=[];
-    
-    for (i=0; i < filas - 1; i++) {
-        for (j=0; j < columnas - 1; j++) {
-            
-            // completar la lógica necesaria para llenar el indexbuffer en funcion de filas y columnas
-            // teniendo en cuenta que se va a dibujar todo el buffer con la primitiva "triangle_strip" 
-            if (j === 0) {
-                indexBuffer.push(i * columnas + j);
-                indexBuffer.push((i + 1) * columnas + j);
-            }
-            indexBuffer.push(i * columnas + j + 1);
-            indexBuffer.push((i + 1) * columnas + j + 1);
-
-            if (j === columnas - 2 && i !== filas - 2) {
-                indexBuffer.push((i + 1) * columnas + j + 1);
-                indexBuffer.push((i + 1) * columnas);
-            }
+    let verticesPorFila = columnas + 1;
+    for (i=0; i < filas; i++) {
+        for (j=0; j < columnas; j++) {
+            indexBuffer.push(i * verticesPorFila + j);
+            indexBuffer.push((i + 1) * verticesPorFila + j);
         }
+        indexBuffer.push((i + 1) * verticesPorFila - 1);
+        indexBuffer.push((i + 2) * verticesPorFila - 1);
+        if (i == filas - 1) break;
+        indexBuffer.push((i + 2) * verticesPorFila - 1);
+        indexBuffer.push((i + 1) * verticesPorFila);
     }
 
     // Creación e Inicialización de los buffers
