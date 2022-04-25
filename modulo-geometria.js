@@ -33,14 +33,18 @@ var filas=100;
 var columnas=100;
 
 
-function crearGeometria(){
+function crearGeometria(superficie){
+    if (superficie == 'esfera') {
+        superficie3D=new Esfera(1);
+    } else if (superficie == 'cilindro') {
+        superficie3D=new Cilindro(1, 2);
+    } else if (superficie == 'tubo') {
+        superficie3D=new TuboSenoidal(0.1, 2/5, 1, 2);
+    } else {
+        superficie3D=new Plano(3,3);
+    }
 
-    // superficie3D=new Plano(3,3);
-    // superficie3D=new Esfera(1);
-    // superficie3D=new Cilindro(1, 2);
-    superficie3D=new TuboSenoidal(0.1, 2/5, 1, 2);
     mallaDeTriangulos=generarSuperficie(superficie3D,filas,columnas);
-    
 }
 
 function dibujarGeometria(){
