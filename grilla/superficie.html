@@ -249,7 +249,7 @@
             initGL(canvas);
             initShaders();
             
-            crearGeometria('esfera');
+            crearGeometria(getParameterByName('superficie'));
 
             gl.clearColor(66.2, 0.2, 0.2, 1.0);
             gl.clear(gl.COLOR_BUFFER_BIT);
@@ -258,6 +258,13 @@
             $(window).on("resize",onResize);
             initMenu();
             tick();
+        }
+
+        function getParameterByName(name) {
+            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
         }
     
         // cuando el documento HTML esta completo, iniciamos la aplicación
